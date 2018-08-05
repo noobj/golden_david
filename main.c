@@ -16,9 +16,24 @@ void move(Location *);
 
 int main() {
 	Location player1 = {0,0};
-	move(&player1);
+	char action = 'm';	// to decide what kind of action you take, move by default
+	while(1) {
+		printf("PLAYER1: (%d, %d)\n", player1.x, player1.y);
+		printf("kick(k) or move(m)?\n");
+		scanf(" %c", &action);
 
-	printf("FUCK YOU OUT (%d, %d)\n", player1.x, player1.y);
+		switch(action)
+		{
+			case 'm':
+				move(&player1);
+				break;
+			case 'k':
+				break;
+			default:
+				move(&player1);
+		}
+	}
+
 	return 0;
 }
 
