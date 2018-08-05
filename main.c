@@ -15,7 +15,7 @@ void move(Location *);
 
 
 int main() {
-	Location player1 = {0,0};
+	Location player1 = {0,0};	// init the player's location
 	char action = 'm';	// to decide what kind of action you take, move by default
 	while(1) {
 		printf("PLAYER1: (%d, %d)\n", player1.x, player1.y);
