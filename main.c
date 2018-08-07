@@ -13,7 +13,7 @@ typedef struct Location {
 } Location;
 
 // function prototypes
-void move(Location *);
+void move(Location *, Location *);
 void kick(Location *, Location *);
 
 int main() {
@@ -31,25 +31,50 @@ int main() {
 		switch(action)
 		{
 			case 'm':
-				move(&player1);
+				move(&player1, &ball);
 				break;
 			case 'k':
 				kick(&player1, &ball);
 				break;
 			default:
-				move(&player1);
+				move(&player1, &ball);
 		}
 	}
 
 	return 0;
 }
 
-void move(Location* player) {
-	int newX, newY;
-	printf("Enter the position you would like to move,format: x,y\n");
-	scanf(" %d,%d", &newX, &newY);
+void move(Location* player, Location* ball) {
+	int newX, newY, disX, disY;		// for storing the new position, and the distance it moves
+	disX = 0;
+	disY = 0;
+	printf("Enter the position you would like to move,format x,y:\n");
+
+	while (scanf(" %d,%d", &newX, &newY) != 2) {
+		printf("please enter the right format\n");
+	}
+	disX = abs(newX - (*player).x);
+	disY = abs(newY - (*player).y);
+
+	while (disX > 1 || disY > 1) {
+		printf("you can only move to adjacent point,please enter again:\n");
+		while (scanf(" %d,%d", &newX, &newY) != 2) {
+			printf("please enter the right format\n");
+		}
+		printf("%d,%d\n", newX, newY);
+		disX = abs(newX - (*player).x);
+		disY = abs(newY - (*player).y);
+	}
+
+	// check whether you with ball or not
+	if ((*player).x == (*ball).x || (*player).y == (*ball).y) {
+		(*ball).x = newX;
+		(*ball).y = newY;
+	}
+
 	(*player).x = newX;
 	(*player).y = newY;
+	printf("you've moved to (%d,%d)\n", newX, newY);
 }
 
 void kick(Location* player, Location* ball) {
