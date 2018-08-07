@@ -56,6 +56,7 @@ void move(Location* player, Location* ball) {
 	disX = abs(newX - (*player).x);
 	disY = abs(newY - (*player).y);
 
+	// check the point you move next you
 	while (disX > 1 || disY > 1) {
 		printf("you can only move to adjacent point,please enter again:\n");
 		while (scanf(" %d,%d", &newX, &newY) != 2) {
