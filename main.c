@@ -15,15 +15,18 @@ typedef struct Location {
 // function prototypes
 void move(Location *, Location *);
 void kick(Location *, Location *);
+int checkScored(Location);
 
+// the entry point of the program
 int main() {
-	Location player1 = {0,0};	// init the player's location
-	Location ball = {0,0};	// init the ball's location
+	Location player1 = {2,1};	// init the player's location
+	Location ball = {2,1};	// init the ball's location
 	char action = 'm';	// to decide what kind of action you take, move by default
+	int ggFlag = 1;		// to check end of game state
 
 	srand(time(NULL));	// reset the seed of rand function
 
-	while(1) {
+	while(ggFlag) {
 		printf("PLAYER1: (%d, %d)   BALL: (%d, %d)\n", player1.x, player1.y, ball.x, ball.y);
 		printf("kick(k) or move(m)?\n");
 		scanf(" %c", &action);
@@ -35,6 +38,7 @@ int main() {
 				break;
 			case 'k':
 				kick(&player1, &ball);
+				ggFlag = checkScored(ball);
 				break;
 			default:
 				move(&player1, &ball);
@@ -44,6 +48,7 @@ int main() {
 	return 0;
 }
 
+// move the player and ball if its with you
 void move(Location* player, Location* ball) {
 	int newX, newY, disX, disY;		// for storing the new position, and the distance it moves
 	disX = 0;
@@ -68,16 +73,19 @@ void move(Location* player, Location* ball) {
 	}
 
 	// check whether you with ball or not
-	if ((*player).x == (*ball).x || (*player).y == (*ball).y) {
+	if ((*player).x == (*ball).x && (*player).y == (*ball).y) {
+		// move the ball with you
 		(*ball).x = newX;
 		(*ball).y = newY;
 	}
 
+	// move the player
 	(*player).x = newX;
 	(*player).y = newY;
 	printf("you've moved to (%d,%d)\n", newX, newY);
 }
 
+// kick the ball to the ramdon position
 void kick(Location* player, Location* ball) {
 	// check whether you have ball or not
 	if ((*player).x != (*ball).x || (*player).y != (*ball).y) {
@@ -94,4 +102,15 @@ void kick(Location* player, Location* ball) {
 	(*ball).y = randomY;
 
 	printf("you've kicked the ball to (%d,%d)\n", randomX, randomY);
+}
+
+// check the ball's current position
+// if match the Goal position then return 0 to end the game
+int checkScored(Location ball) {
+	if (ball.x == 4 && ball.y == 1) {
+		printf("!------------player1 won the game------------!\n");
+		return 0;
+	}
+
+	return 1;
 }
