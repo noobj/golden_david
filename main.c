@@ -94,7 +94,7 @@ int main() {
 // move the player and ball if its with you
 void move(Location* player, Location* ball) {
 	int newX, newY, disX, disY;		// for storing the new position, and the distance it moves
-	char str[20];
+	char str[20];	// a temp string for dealing with different input format
 	disX = 0;
 	disY = 0;
 	printf("Enter the position you would like to move,format x,y:\n");
@@ -104,7 +104,8 @@ void move(Location* player, Location* ball) {
 	disY = abs(newY - (*player).y);
 
 	// check the point you move next you
-	while (disX > 1 || disY > 1) {
+	// cant stay at the same position
+	while (disX > 1 || disY > 1 || (disX + disY == 0)) {
 		printf("you can only move to adjacent point,please enter again:\n");
 		if (scanf(" %d,%d", &newX, &newY) != 2) fgets(str, sizeof(str), stdin);
 		disX = abs(newX - (*player).x);
