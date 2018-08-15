@@ -14,35 +14,78 @@ typedef struct Location {
 
 // function prototypes
 void move(Location *, Location *);
-void kick(Location *, Location *);
-int checkScored(Location);
+void kick(Location *, Location *, int);
+int checkKickable(Location, Location);
+int checkScored(Location, Location, int);
 
 // the entry point of the program
 int main() {
-	Location player1 = {2,1};	// init the player's location
+	srand(time(NULL));	// reset the seed of rand function
+
+	// init the player's location
+	Location player1,player2;
+	Location* attacker,* defender;
 	Location ball = {2,1};	// init the ball's location
 	char action = 'm';	// to decide what kind of action you take, move by default
 	int ggFlag = 1;		// to check end of game state
+	int turns = 0;		// stores which turns now on
+	int theCoin = rand() % 2;	// to decide which player play first
+	int playerNumber = theCoin % 2 + 1;	// to store which player plays now
 
-	srand(time(NULL));	// reset the seed of rand function
+	if (playerNumber == 1) {
+		player1.x = 2;
+		player1.y = 1;
+		player2.x = 4;
+		player2.y = 1;
+	} else {
+		player1.x = 0;
+		player1.y = 1;
+		player2.x = 2;
+		player2.y = 1;
+	}
 
 	while(ggFlag) {
-		printf("PLAYER1: (%d, %d)   BALL: (%d, %d)\n", player1.x, player1.y, ball.x, ball.y);
+		if (theCoin % 2 == 0) {
+			attacker = &player1;
+			defender = &player2;
+		} else {
+			attacker = &player2;
+			defender = &player1;
+		}
+
+		playerNumber = theCoin % 2 + 1;
+
+		printf("\n*--------- TRUN %d (PLAYER%d)---------*\n", turns, playerNumber);
+		printf("PLAYER1: (%d, %d)  PLAYER2: (%d, %d)  BALL: (%d, %d)\n", player1.x, player1.y,
+		 player2.x, player2.y, ball.x, ball.y);
+
+		do {
 		printf("kick(k) or move(m)?\n");
 		scanf(" %c", &action);
+		} while (action != 'k' && action != 'm');
+
+		while (action == 'k') {
+			if (checkKickable(*attacker, ball)) break;
+
+			printf("press 'm' to move\n");
+			scanf(" %c", &action);
+		}
 
 		switch(action)
 		{
 			case 'm':
-				move(&player1, &ball);
+				move(attacker, &ball);
 				break;
 			case 'k':
-				kick(&player1, &ball);
-				ggFlag = checkScored(ball);
+				kick(attacker, &ball, playerNumber);
+				ggFlag = checkScored(*defender, ball, playerNumber);
 				break;
 			default:
-				move(&player1, &ball);
+				move(attacker, &ball);
 		}
+		turns++;
+		theCoin++;
+		printf("*-----------------------------------*\n");
 	}
 
 	return 0;
@@ -86,18 +129,21 @@ void move(Location* player, Location* ball) {
 }
 
 // kick the ball to the ramdon position
-void kick(Location* player, Location* ball) {
-	// check whether you have ball or not
-	if ((*player).x != (*ball).x || (*player).y != (*ball).y) {
-		printf("you dont have the ball\n");
-		return;
+void kick(Location* player, Location* ball, int playerNumber) {
+	int randomX, randomY = 0;	// to store the new ball location
+	int border = MAX_WIDTH;
+	if (playerNumber == 2) border = 0;
+
+	if ((*player).x == border) {
+		printf("you are at the border\n");
+		return;	// you are at the border,nothing to kick
 	}
 
-	if ((*player).x == MAX_WIDTH) return;	// you are at the border,nothing to kick
-
 	int min = (*player).x;		// use player's x position as the minimum random value
-	int randomX = (rand() % (MAX_WIDTH - min)) + min + 1;	// for store the random kick value of X
-	int randomY = rand() % (MAX_HEIGHT - 0 + 1);	// for store the random kick value of Y
+	if (playerNumber == 1) randomX = (rand() % (MAX_WIDTH - min)) + min + 1;	// for store the random kick value of X
+	else randomX = rand() % min;
+
+	randomY = rand() % (MAX_HEIGHT + 1);	// for store the random kick value of Y
 	(*ball).x = randomX;
 	(*ball).y = randomY;
 
@@ -106,9 +152,35 @@ void kick(Location* player, Location* ball) {
 
 // check the ball's current position
 // if match the Goal position then return 0 to end the game
-int checkScored(Location ball) {
-	if (ball.x == 4 && ball.y == 1) {
-		printf("!------------player1 won the game------------!\n");
+// return 1 if missed or got blocked
+int checkScored(Location defender, Location ball, int playerNumber) {
+	if (defender.x == ball.x && defender.y == ball.y) {
+		printf("defender blocked the ball\n");
+		return 1;
+	}
+
+	int goalX, goalY;	// define the position of goal
+	if (playerNumber == 1) {
+		goalX = 4;
+		goalY = 1;
+	} else {
+		goalX = 0;
+		goalY = 1;
+	}
+
+	if (ball.x == goalX && ball.y == goalY) {
+		printf("!------------player%d won the game------------!\n", playerNumber);
+		return 0;
+	}
+
+	return 1;
+}
+
+// check whether you have ball or not
+// return 1 if kickable, 0 for failed
+int checkKickable(Location player, Location ball) {
+	if (player.x != ball.x || player.y != ball.y) {
+		printf("you've kicked the air\n");
 		return 0;
 	}
 
